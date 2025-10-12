@@ -2,7 +2,12 @@ body{
     background-color: white
 }
 
-.toggle-theme-border-button {
-  border-color: whitesmoke !important;
+.toggle-dark-button {
+    border-color: whitesmoke !important;
+    color: white !important;
+}
+
+.toggle-light-button {
+    border-color: whitesmoke !important;
     color: white !important;
 }
