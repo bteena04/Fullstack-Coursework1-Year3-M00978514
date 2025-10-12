@@ -1,0 +1,8 @@
+body{
+    background-color: white
+}
+
+.toggle-theme-border-button {
+  border-color: whitesmoke !important;
+    color: white !important;
+}

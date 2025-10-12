@@ -1,3 +1,5 @@
+<!--Index.html-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,33 +10,71 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <title>Tuition Lessons</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/styles.css" />
+    <title>XLearning</title>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Navbar</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-        </li>
-      </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
-    </div>
+
+  <!--Vue app-->
+  <div id="app">
+    <!--Import the navbar from the navbar template.-->
+    <navbar></navbar>
   </div>
-</nav>
+    
+  <!-- Navbar template -->
+  <script type="text/x-template" id="navbar_template">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary" :data-bs-theme="darkMode ? 'dark' : 'light'">
+      <div class="container-fluid">
+
+        <!-- Logo and app name -->
+        <a class="navbar-brand" href="#">
+          <img :src="darkMode? logo.darkMode : logo.lightMode" alt="Logo" width="40" height="35" class="d-inline-block align-text-middle"> XLearning
+        </a>
+
+        <!-- Navigation links -->
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-link active" aria-current="page" href="#">Home</a>
+            <a class="nav-link" href="#">Browse</a>
+            <a class="nav-link" href="#">Dashboard</a>
+          </div>
+
+          <div class="d-flex align-items-start-end gap-3 ms-auto">
+          <!-- Dark mode toggle button -->
+          <form class="d-flex">
+            <button class="btn btn-sm btn-outline-secondary" type="button" @click="toggleTheme()">Toggle theme</button>
+            <button type="button" :class="['btn', darkMode ? 'active toggle-theme-border-button' : '']" data-bs-toggle="button" aria-pressed="true">Dark Mode</button>
+          </form>
+
+          <!-- Search bar -->
+          <form class="d-flex me-2" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+
+          <!-- <form :class="{'d-flex':true}" role="sign-in"> -->
+          <form class="d-flex" role="sign-in">
+            <button type="button" class="btn btn-light btn-sm" v-if="!userLoginStatus.isUserLoggedIn">Sign In</button>
+            <button type="button" class="btn btn-light btn-sm" v-if="userLoginStatus.isUserLoggedIn">
+              Log Out
+              <span class="fa-solid fa-arrow-right-from-bracket"></span>
+            </button>
+          </form>
+        </div>
+          
+        </div>
+      </div>
+    </nav>
+  </script>
+
+  
+  <!--Navbar component script-->
+  <script src="./js/components/navbar.js"></script>
+
+  <!--Main app script-->
+  <script src="./js/main.js"></script>
+
+
 </body>
 </html>
