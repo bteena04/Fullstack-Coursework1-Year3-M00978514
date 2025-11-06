@@ -15,94 +15,281 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
     <link rel="stylesheet" href="./css/styles.css" />
     <title>XLearning</title>
   </head>
   <body>
     <!--Vue app-->
     <div id="app">
-      <!--Import the navbar from the navbar template.-->
-      <navbar :current-view="currentView" @navigate="navigate"></navbar>
+      <!--Navbar.-->
+      <div id="navbar">
+        <nav
+          class="navbar navbar-expand-lg bg-body-tertiary"
+          :data-bs-theme="darkMode ? 'dark' : 'light'"
+        >
+          <div class="container-fluid">
+            <!-- Logo and app name -->
+            <a class="navbar-brand" href="#" @click.prevent="go('home')">
+              <img
+                :src="darkMode? logo.darkMode : logo.lightMode"
+                alt="Logo"
+                width="40"
+                height="35"
+                class="d-inline-block align-text-middle"
+              />
+              XLearning
+            </a>
 
-      <!-- Conditional rendering of pages -->
-      <div v-if="currentView === 'home'">
-        <h2>Home Page</h2>
-        <p>Welcome to XLearning!</p>
-      </div>
+            <!-- Toggle menu icon -->
+            <button
+              class="navbar-toggler dropdown"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Action</a></li>
+              <li><a class="dropdown-item" href="#">Another action</a></li>
+              <li><a class="dropdown-item" href="#">Something else here</a></li>
+            </ul>
 
-      <div v-if="currentView === 'browse'">
-        <h2>Browse Lessons</h2>
-        <p>List of lessons here...</p>
-      </div>
+            <!-- Navigation links -->
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <div class="navbar-nav">
+                <a
+                  :class="[ 'nav-link', isActive('home') ]"
+                  :aria-current="isActive('home') ? 'page' : null"
+                  href="#"
+                  @click.prevent="go('home')"
+                  >Home
+                </a>
+                <a
+                  :class="[ 'nav-link', isActive('browse') ]"
+                  :aria-current="isActive('browse') ? 'page' : null"
+                  href="#"
+                  @click.prevent="go('browse')"
+                  >Browse
+                </a>
 
-      <div v-if="currentView === 'dashboard'">
-        <h2>Dashboard</h2>
-        <p>User info and stats...</p>
-      </div>
-    </div>
+                <a
+                  :class="[ 'nav-link', isActive('dashboard') ]"
+                  :aria-current="isActive('dashboard') ? 'page' : null"
+                  href="#"
+                  @click.prevent="go('dashboard')"
+                  >Dashboard
+                </a>
+              </div>
 
-    <!-- Navbar template -->
-    <script type="text/x-template" id="navbar_template">
-      <nav class="navbar navbar-expand-lg bg-body-tertiary" :data-bs-theme="darkMode ? 'dark' : 'light'">
-        <div class="container-fluid">
+              <div class="d-flex align-items-start-end gap-3 ms-auto">
+                <!-- Dark mode toggle button -->
+                <form class="d-flex">
+                  <button
+                    type="button"
+                    :class="['btn', 'btn-sm', darkMode ? 'active toggle-dark-button' : 'active toggle-white-button']"
+                    @click="toggleTheme()"
+                    data-bs-toggle="button"
+                    aria-pressed="true"
+                  >
+                    Dark Mode
+                  </button>
+                </form>
 
-          <!-- Logo and app name -->
-          <a class="navbar-brand" href="#"  @click.prevent="go('home')">
-            <img :src="darkMode? logo.darkMode : logo.lightMode" alt="Logo" width="40" height="35" class="d-inline-block align-text-middle"> XLearning
-          </a>
+                <!-- Search bar -->
+                <form class="d-flex me-2" role="search">
+                  <input
+                    class="form-control me-2"
+                    type="search"
+                    placeholder="Search"
+                    aria-label="Search"
+                  />
+                  <button class="btn btn-outline-success" type="submit">
+                    Search
+                  </button>
+                </form>
 
+                <!-- <Log in and Log out buttons -->
+                <form class="d-flex" role="sign-in">
+                  <button
+                    type="button"
+                    class="btn btn-light btn-sm"
+                    v-if="!userLoginStatus.isUserLoggedIn"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-light btn-sm"
+                    v-if="userLoginStatus.isUserLoggedIn"
+                  >
+                    Log Out
+                    <span class="fa-solid fa-arrow-right-from-bracket"></span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </nav>
 
-          <!-- Toggle menu icon -->
-          <button class="navbar-toggler dropdown" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
-          </ul>
-
-          <!-- Navigation links -->
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <div class="navbar-nav">
-              <a :class="[ 'nav-link', isActive('home') ]" :aria-current="isActive('home') ? 'page' : null"
-                href="#" @click.prevent="go('home')">Home
-              </a>
-              <a :class="[ 'nav-link', isActive('browse') ]" :aria-current="isActive('browse') ? 'page' : null"
-                href="#" @click.prevent="go('browse')">Browse
-              </a>
-
-              <a :class="[ 'nav-link', isActive('dashboard') ]" :aria-current="isActive('dashboard') ? 'page' : null"
-                href="#" @click.prevent="go('dashboard')">Browse
-              </a>
+        <!-- Sub-header -->
+        <div class="card">
+          <div
+            class="card-header d-flex justify-content-between align-items-center"
+          >
+            <button
+              class="btn btn-primary"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasScrolling"
+              aria-controls="offcanvasScrolling"
+            >
+              <span class="fa-solid fa-bars"></span>
+            </button>
+            <!-- Checkout button -->
+            <div id="checkoutbutton">
+              <button class="btn btn-success">
+                <span class="fa-solid fa-cart-shopping"></span>
+                Checkout ({{itemsInCartLength}})
+              </button>
             </div>
 
-            <div class="d-flex align-items-start-end gap-3 ms-auto">
+            <!-- Offcanvas Sidebar -->
+            <div
+              class="offcanvas offcanvas-start"
+              data-bs-scroll="true"
+              data-bs-backdrop="false"
+              tabindex="-1"
+              id="offcanvasScrolling"
+              aria-labelledby="offcanvasScrollingLabel"
+            >
+              <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasScrollingLabel">
+                  Filter
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="offcanvas"
+                  aria-label="Close"
+                ></button>
+              </div>
 
-              <!-- Dark mode toggle button -->
-              <form class="d-flex">
-                <button type="button" :class="['btn', 'btn-sm', darkMode ? 'active toggle-dark-button' : 'active toggle-white-button']" @click="toggleTheme()" data-bs-toggle="button" aria-pressed="true">Dark Mode</button>
-              </form>
+              <!-- Sidebar contents -->
+              <div class="offcanvas-body">
+                <!-- Sort container -->
+                <div class="container-fluid" id="sortContainer">
+                  <!-- Sort attributes dropdown -->
+                  <div>
+                    <label for="sortBy" class="form-label">Sort By</label>
+                    <select
+                      class="form-select"
+                      id="sortBy"
+                      v-model="sortAttribute"
+                    >
+                      <option disabled value="">Select an attribute</option>
+                      <option value="subject">Subject</option>
+                      <option value="location">Location</option>
+                      <option value="price">Price</option>
+                      <option value="spaces">Spaces</option>
+                    </select>
+                  </div>
 
-              <!-- Search bar -->
-              <form class="d-flex me-2" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-                <button class="btn btn-outline-success" type="submit">Search</button>
-              </form>
+                  <!-- Sort order -->
+                  <div class="mt-3" id="sortOrder">
+                    <input
+                      type="radio"
+                      id="sortOrderAsc"
+                      value="asc"
+                      v-model="sortOrder"
+                    />
+                    <label for="sortOrderAsc">Ascending</label>
 
-              <!-- <Log in and Log out buttons -->
-              <form class="d-flex" role="sign-in">
-                <button type="button" class="btn btn-light btn-sm" v-if="!userLoginStatus.isUserLoggedIn">Sign In</button>
-                <button type="button" class="btn btn-light btn-sm" v-if="userLoginStatus.isUserLoggedIn">
-                  Log Out
-                  <span class="fa-solid fa-arrow-right-from-bracket"></span>
-                </button>
-              </form>
+                    <input
+                      type="radio"
+                      id="sortOrderDesc"
+                      value="desc"
+                      v-model="sortOrder"
+                    />
+                    <label for="sortOrderDesc">Descending</label>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </nav>
-    </script>
+      </div>
+
+      <!-- Conditional rendering of pages -->
+      <!-- Home Page -->
+      <div v-if="currentView === 'home'">
+        <div class="container-fluid" id="main_content_container">
+          <h2>Home Page</h2>
+          <p>Welcome to XLearning!</p>
+          <div class="row mt-4">
+            <!-- Display list of lessons. -->
+            <div
+              class="col-md-3 mb-4"
+              v-for="lesson in sortedLessons"
+              :key="lesson.id"
+            >
+              <div class="card h-100 shadow-sm">
+                <img
+                  :src="lesson.img"
+                  class="card-img-top"
+                  alt="Lesson Image"
+                />
+                <div class="card-body text-center">
+                  <h5 class="card-title">{{ lesson.subject }}</h5>
+                  <p class="card-text">
+                    <strong>Location:</strong> {{ lesson.location }} <br />
+                    <strong>Price:</strong> ${{ lesson.price }} <br />
+                    <p>Only {{itemsLeft(lesson)}} left!</p>
+                  </p>
+                  <!-- Add Cart Button: Only visible when space is larger than 0. -->
+                  <div id="addToCartBtn">
+                    <button 
+                      @click="addToCart(lesson)" 
+                      :disabled="!canAddToCart(lesson)"
+                    >
+                      Add To Cart
+                    </button>
+                  <div id="outOfStockText">
+                    <span v-if="lesson.available==0">Out of Stock</span>
+                  </div>
+                  <span v-if='itemsLeft(lesson) === 0'>All out!</span>
+                  <span v-else-if="itemsLeft(lesson) < 5">Only {{itemsLeft}} left!</span>
+                  <span v-else>Buy now!</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browse Page -->
+      <div v-if="currentView === 'browse'">
+        <div class="container-fluid">
+          <h2>View</h2>
+        </div>
+      </div>
+
+      <div v-if="currentView === 'dashboard'">
+        <div class="container-fluid" id="main_content_container">
+          <h2>Dashboard</h2>
+          <p>User info and stats...</p>
+        </div>
+      </div>
+
+      <!-- End of main app. -->
+    </div>
 
     <!--Navbar component script-->
     <script src="./js/components/navbar.js"></script>
