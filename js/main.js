@@ -15,12 +15,13 @@ var app = new Vue({
     // Sorting controls
     sortAttribute: '',
     sortOrder: 'asc',
-    cart: [1,2],
+    cart: [],
 
     // Lesson Data.
     lessons: [
       { 
-        id: 1, 
+        id: 1,
+        description: 'Learn the basics of algebra, geometry, and calculus with our expert tutors.', 
         img: 'images/lesson_images/guitar.jpg',
         subject: 'Maths', 
         location: 'Flic en flac', 
@@ -29,6 +30,7 @@ var app = new Vue({
       },
       { 
         id: 2, 
+        description: 'Explore the world of atoms, molecules, and reactions with hands-on experiments.',
         img: 'images/lesson_images/guitar.jpg',
         subject: 'Chemistry', 
         location: 'Riche Terre', 
@@ -37,6 +39,7 @@ var app = new Vue({
       },
       { 
         id: 3, 
+        description: 'Master chords, strumming patterns, and music theory to become a skilled guitarist.',
         img: 'images/lesson_images/guitar.jpg',
         subject: 'Guitar', 
         location: 'Port Louis', 
@@ -45,6 +48,7 @@ var app = new Vue({
       },
       { 
         id: 4, 
+        description: 'Dive into physics concepts like motion, energy, and forces with engaging lessons.',
         img: 'images/lesson_images/guitar.jpg',
         subject: 'Science', 
         location: 'Montagne Longue', 
@@ -53,6 +57,7 @@ var app = new Vue({
       },
       { 
         id: 5, 
+        description: 'Learn to play beautiful melodies and understand music theory with our piano lessons.',
         img: 'images/lesson_images/guitar.jpg',
         subject: 'Piano', 
         location: 'Arsenal', 
@@ -61,6 +66,7 @@ var app = new Vue({
       },
       { 
         id: 6, 
+        description: 'Get behind the wheel with confidence through our comprehensive driving lessons.',
         img: 'images/lesson_images/guitar.jpg',
         subject: 'Driving', 
         location: 'Triolet', 
@@ -105,6 +111,16 @@ var app = new Vue({
     // Calculate how many items are left that can be added to the cart.
     itemsLeft(lesson) {
       return lesson.available - this.numberOfItemInCart(lesson.id);
+    },
+
+    removeLessonFromCart(lesson){
+      // Find the index of the lesson to remove.
+      const lessonToRemoveIndex = this.cart.indexOf(lesson.id);
+
+      // Remove if the lesson is found in the cart.
+      if (lessonToRemoveIndex > -1) {
+        this.cart.splice(lessonToRemoveIndex, 1);
+      }
     }
 
   },

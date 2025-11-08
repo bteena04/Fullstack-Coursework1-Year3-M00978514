@@ -62,7 +62,7 @@
               <li><a class="dropdown-item" href="#">Something else here</a></li>
             </ul>
 
-            <!-- Navigation links -->
+            <!-- Navigation links logic -->
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <div class="navbar-nav">
                 <a
@@ -73,10 +73,10 @@
                   >Home
                 </a>
                 <a
-                  :class="[ 'nav-link', isActive('browse') ]"
-                  :aria-current="isActive('browse') ? 'page' : null"
+                  :class="[ 'nav-link', isActive('checkout') ]"
+                  :aria-current="isActive('checkout') ? 'page' : null"
                   href="#"
-                  @click.prevent="go('browse')"
+                  @click.prevent="go('checkout')"
                   >Browse
                 </a>
 
@@ -140,12 +140,12 @@
         </nav>
 
         <!-- Sub-header -->
-        <div class="card">
+        <div id="subheader" class="card">
           <div
             class="card-header d-flex justify-content-between align-items-center"
           >
             <button
-              class="btn btn-primary"
+              id="sidebar_hamburger"
               type="button"
               data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasScrolling"
@@ -153,11 +153,18 @@
             >
               <span class="fa-solid fa-bars"></span>
             </button>
+
             <!-- Checkout button -->
             <div id="checkoutbutton">
-              <button class="btn btn-success">
-                <span class="fa-solid fa-cart-shopping"></span>
-                Checkout ({{itemsInCartLength}})
+              <button class="btn btn-success" :disabled="!(itemsInCartLength>0)" @click.prevent = "isActive('checkout') ? go('home') : go('checkout')">
+                <span v-if="itemsInCartLength>0">
+                  <i class="fa-solid fa-cart-shopping"></i>
+                  Checkout ({{itemsInCartLength}})
+                </span>
+                <span v-else>
+                  <i class="fa-solid fa-cart-shopping"></i>
+                  Checkout
+                </span>
               </button>
             </div>
 
@@ -184,6 +191,10 @@
 
               <!-- Sidebar contents -->
               <div class="offcanvas-body">
+                <!-- 
+                REQUIREMENT [Front-End] Sort functionality: 
+                -->
+                
                 <!-- Sort container -->
                 <div class="container-fluid" id="sortContainer">
                   <!-- Sort attributes dropdown -->
@@ -198,7 +209,7 @@
                       <option value="subject">Subject</option>
                       <option value="location">Location</option>
                       <option value="price">Price</option>
-                      <option value="spaces">Spaces</option>
+                      <option value="available">Spaces</option>
                     </select>
                   </div>
 
@@ -231,42 +242,75 @@
       <!-- Home Page -->
       <div v-if="currentView === 'home'">
         <div class="container-fluid" id="main_content_container">
-          <h2>Home Page</h2>
-          <p>Welcome to XLearning!</p>
           <div class="row mt-4">
-            <!-- Display list of lessons. -->
+            <!-- 
+            REQUIREMENT [Front-End] “Display List of Lessons” functionality:
+            -->
             <div
               class="col-md-3 mb-4"
               v-for="lesson in sortedLessons"
               :key="lesson.id"
             >
-              <div class="card h-100 shadow-sm">
+              <div id="lesson_card" class="card h-100 shadow-sm d-flex flex-column">
                 <img
                   :src="lesson.img"
                   class="card-img-top"
                   alt="Lesson Image"
                 />
                 <div class="card-body text-center">
-                  <h5 class="card-title">{{ lesson.subject }}</h5>
-                  <p class="card-text">
-                    <strong>Location:</strong> {{ lesson.location }} <br />
-                    <strong>Price:</strong> ${{ lesson.price }} <br />
-                    <p>Only {{itemsLeft(lesson)}} left!</p>
-                  </p>
+                  <div id="lesson_title">
+                    <h5 class="card-title">{{ lesson.subject }}</h5>
+                  </div>
+
+                  <div class="card-text">
+                    <!-- Lesson description -->
+                    <div id="lesson_description">
+                      {{ lesson.description }}
+                    </div>
+
+                    <!-- Lesson Info -->
+                    <div class="lesson_info">
+
+                      <!-- Location -->
+                      <div id="lesson_location"></div>
+                      <span>
+                        <i class="fa-solid fa-location-dot"></i> Venue: {{lesson.location}}
+                      </span><br>
+
+                      <!-- Spaces available -->
+                      <div id="space_available" class="mt-2">
+                        <span v-if="itemsLeft(lesson)>0" id="items_left">Only {{itemsLeft(lesson)}} seats left! <br>
+                          <span>
+                            Secure yours now at only 
+                            <span id="lesson_price">$ {{lesson.price}}</span>
+                          </span>
+                        </span>
+                        <span v-else id="outOfStockText" >Out of stock</span>
+                      </div>
+                    </div>
+                  </div>
+
                   <!-- Add Cart Button: Only visible when space is larger than 0. -->
-                  <div id="addToCartBtn">
+                  <div class="text-center pb-2 mt-3">
                     <button 
+                      id="addToCartBtn"
                       @click="addToCart(lesson)" 
                       :disabled="!canAddToCart(lesson)"
                     >
                       Add To Cart
                     </button>
-                  <div id="outOfStockText">
-                    <span v-if="lesson.available==0">Out of Stock</span>
+                    <span>
+                      <button>
+                        <i class="fa-solid fa-cart-plus"></i>
+                        {{numberOfItemInCart(lesson.id)}}
+                      </button>
+                    </span>
+                    <span>
+                      <button v-show="numberOfItemInCart(lesson.id)>0" @click="removeLessonFromCart(lesson)">
+                        <i class="fa-solid fa-minus"></i>
+                      </button>
+                    </span>
                   </div>
-                  <span v-if='itemsLeft(lesson) === 0'>All out!</span>
-                  <span v-else-if="itemsLeft(lesson) < 5">Only {{itemsLeft}} left!</span>
-                  <span v-else>Buy now!</span>
                 </div>
               </div>
             </div>
@@ -274,10 +318,10 @@
         </div>
       </div>
 
-      <!-- Browse Page -->
-      <div v-if="currentView === 'browse'">
+      <!-- Checkout Page -->
+      <div v-if="currentView === 'checkout'">
         <div class="container-fluid">
-          <h2>View</h2>
+          <h2>Checkout page</h2>
         </div>
       </div>
 
@@ -290,9 +334,6 @@
 
       <!-- End of main app. -->
     </div>
-
-    <!--Navbar component script-->
-    <script src="./js/components/navbar.js"></script>
 
     <!--Main app script-->
     <script src="./js/main.js"></script>
