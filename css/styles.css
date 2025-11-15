@@ -1,12 +1,27 @@
 body{
     background-color: rgb(19, 19, 19);
     color: white !important;
+    padding-top: 110px; /* To prevent content from being hidden behind the fixed navbar */
 }
 
-#subheader{
+#navbar nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1050;
+}
+
+#subheader {
+    position: fixed;
+    top: 60px; 
+    left: 0;
+    width: 100%;
+    z-index: 1040;
     background-color: rgb(17, 23, 29) !important;
     color: white !important;
     border-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .toggle-dark-button {
@@ -25,17 +40,15 @@ body{
     border-radius: 3px;
 }
 
-/* .card-title{
-    background-color: cadetblue;
-} */
-
+/* 
+    CSS for Homepage
+*/
 .card-text{
     background-color: rgb(34, 49, 63);
     border-radius: 2px;
     padding: 3px;
     color: white;
 }
-
 
 #lesson_card{
     /* background-color: rgb(29, 77, 43); */
@@ -99,3 +112,11 @@ body{
     border-radius: 7px; 
 }
 
+
+/* 
+    CSS for Checkout Page
+*/
+#checkout_content_container{
+    margin-top: 20px;
+    background-color: rgb(52, 93, 131);
+}

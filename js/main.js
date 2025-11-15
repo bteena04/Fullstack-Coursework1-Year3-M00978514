@@ -15,65 +15,12 @@ var app = new Vue({
     // Sorting controls
     sortAttribute: '',
     sortOrder: 'asc',
+
+    // Shopping cart array to hold lesson IDs.
     cart: [],
 
-    // Lesson Data.
-    lessons: [
-      { 
-        id: 1,
-        description: 'Learn the basics of algebra, geometry, and calculus with our expert tutors.', 
-        img: 'images/lesson_images/guitar.jpg',
-        subject: 'Maths', 
-        location: 'Flic en flac', 
-        price: 50, 
-        available: 4
-      },
-      { 
-        id: 2, 
-        description: 'Explore the world of atoms, molecules, and reactions with hands-on experiments.',
-        img: 'images/lesson_images/guitar.jpg',
-        subject: 'Chemistry', 
-        location: 'Riche Terre', 
-        price: 15, 
-        available:60
-      },
-      { 
-        id: 3, 
-        description: 'Master chords, strumming patterns, and music theory to become a skilled guitarist.',
-        img: 'images/lesson_images/guitar.jpg',
-        subject: 'Guitar', 
-        location: 'Port Louis', 
-        price: 35, 
-        available:40
-      },
-      { 
-        id: 4, 
-        description: 'Dive into physics concepts like motion, energy, and forces with engaging lessons.',
-        img: 'images/lesson_images/guitar.jpg',
-        subject: 'Science', 
-        location: 'Montagne Longue', 
-        price: 80, 
-        available:55
-      },
-      { 
-        id: 5, 
-        description: 'Learn to play beautiful melodies and understand music theory with our piano lessons.',
-        img: 'images/lesson_images/guitar.jpg',
-        subject: 'Piano', 
-        location: 'Arsenal', 
-        price: 75, 
-        available:10
-      },
-      { 
-        id: 6, 
-        description: 'Get behind the wheel with confidence through our comprehensive driving lessons.',
-        img: 'images/lesson_images/guitar.jpg',
-        subject: 'Driving', 
-        location: 'Triolet', 
-        price: 120, 
-        available:'8' 
-      }
-    ]
+    // Lessons data fetched from the server.
+    lessons: []    
   },
   methods: {
     go: function(view) {
@@ -84,12 +31,6 @@ var app = new Vue({
     },
     toggleTheme: function() {
       this.darkMode = !this.darkMode;
-    },
-
-    addToCart(lesson) {
-      if (this.canAddToCart(lesson)) {
-        this.cart.push(lesson.id);
-      }
     },
 
     // Count how many particular item is in the cart.
@@ -108,6 +49,13 @@ var app = new Vue({
       return this.numberOfItemInCart(lesson.id) < lesson.available;
     },
 
+    addToCart(lesson) {
+      // Only add to cart if lesson is available.
+      if (this.canAddToCart(lesson)) {
+        this.cart.push(lesson.id);
+      }
+    },
+
     // Calculate how many items are left that can be added to the cart.
     itemsLeft(lesson) {
       return lesson.available - this.numberOfItemInCart(lesson.id);
@@ -121,8 +69,18 @@ var app = new Vue({
       if (lessonToRemoveIndex > -1) {
         this.cart.splice(lessonToRemoveIndex, 1);
       }
-    }
-
+    },
+    // Method to fetch lessons from the server.
+    fetchLessons(){
+      fetch("https://fullstack-coursework1-year3-expressapp.onrender.com/collections/lessons")
+      .then(response => response.json())
+      .then(res => {
+        this.lessons =res;
+        console.log(this.lessons);
+      })
+      .catch(error => {console.error("Error fetching lessons:", error);})
+      .finally(()=> console.log("Fetch attempt finished."));
+    },
   },
   computed: {
     
@@ -151,5 +109,9 @@ var app = new Vue({
     itemsInCartLength(){
       return this.cart.length || "";
     }
+  },
+  // Lifecycle hook.
+  created(){
+    this.fetchLessons();
   }
 });
