@@ -118,5 +118,57 @@ body{
 */
 #checkout_content_container{
     margin-top: 20px;
-    background-color: rgb(52, 93, 131);
+    background-color: rgb(245, 245, 245);
+    color: black;
+}
+
+#checkout_header{
+    background-color: #d5d5d5;
+}
+.checkout_detail_container{
+    
+}
+
+.checkout_boxes{
+    border-bottom: 2px solid gray;
+    padding: 10px;
+}
+
+.checkout_row_number {
+    width: 40px;     
+    text-align: center;
+    font-weight: bold;
+}
+
+.checkout_header_name{
+    font-weight: bold;
+}
+
+.checkout_card{
+    font-size: small;
+    border-radius: 0px;
+    border: none;
+}
+
+.checkout_main_container {
+  display: flex;
+  gap: 20px;
+}
+
+/* Left side – checkout details */
+#checkout_content_container {
+  flex: 2;      /* or flex: 3 for even bigger */
+  max-width: 75%;
+}
+
+/* Right side – order summary */
+.checkout_main_container > .container-fluid:last-child {
+  flex: 1;
+  max-width: 25%;
+}
+
+#order_image img {
+  width: 120px;   
+  height: auto;   
+  object-fit: cover;
 }

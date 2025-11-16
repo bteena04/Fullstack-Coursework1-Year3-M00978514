@@ -25,316 +25,441 @@
   <body>
     <!--Vue app-->
     <div id="app">
-      <!--Navbar.-->
-      <div id="navbar">
-        <nav
-          class="navbar navbar-expand-lg bg-body-tertiary"
-          :data-bs-theme="darkMode ? 'dark' : 'light'"
-        >
-          <div class="container-fluid">
-            <!-- Logo and app name -->
-            <a class="navbar-brand" href="#" @click.prevent="go('home')">
-              <img
-                :src="darkMode? logo.darkMode : logo.lightMode"
-                alt="Logo"
-                width="40"
-                height="35"
-                class="d-inline-block align-text-middle"
-              />
-              XLearning
-            </a>
+      <!-- Server error warning message if server is down-->
+      <div
+        id="serverErrorWarning"
+        v-if="serverStatus === false"
+        class="alert alert-danger text-center mb-0"
+        role="alert"
+      >
+        <h1>XLearning</h1>
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Sorry, the server is unavailable. Please try again later.
+      </div>
 
-            <!-- Toggle menu icon -->
-            <button
-              class="navbar-toggler dropdown"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navbarSupportedContent"
-              aria-controls="navbarSupportedContent"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Action</a></li>
-              <li><a class="dropdown-item" href="#">Another action</a></li>
-              <li><a class="dropdown-item" href="#">Something else here</a></li>
-            </ul>
-
-            <!-- Navigation links logic -->
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <div class="navbar-nav">
-                <a
-                  :class="[ 'nav-link', isActive('home') ]"
-                  :aria-current="isActive('home') ? 'page' : null"
-                  href="#"
-                  @click.prevent="go('home')"
-                  >Home
-                </a>
-                <a
-                  :class="[ 'nav-link', isActive('checkout') ]"
-                  :aria-current="isActive('checkout') ? 'page' : null"
-                  href="#"
-                  @click.prevent="go('checkout')"
-                  >Browse
-                </a>
-
-                <a
-                  :class="[ 'nav-link', isActive('dashboard') ]"
-                  :aria-current="isActive('dashboard') ? 'page' : null"
-                  href="#"
-                  @click.prevent="go('dashboard')"
-                  >Dashboard
-                </a>
-              </div>
-
-              <div class="d-flex align-items-start-end gap-3 ms-auto">
-                <!-- Dark mode toggle button -->
-                <form class="d-flex">
-                  <button
-                    type="button"
-                    :class="['btn', 'btn-sm', darkMode ? 'active toggle-dark-button' : 'active toggle-white-button']"
-                    @click="toggleTheme()"
-                    data-bs-toggle="button"
-                    aria-pressed="true"
-                  >
-                    Dark Mode
-                  </button>
-                </form>
-
-                <!-- Search bar -->
-                <form class="d-flex me-2" role="search">
-                  <input
-                    class="form-control me-2"
-                    type="search"
-                    placeholder="Search"
-                    aria-label="Search"
-                  />
-                  <button class="btn btn-outline-success" type="submit">
-                    Search
-                  </button>
-                </form>
-
-                <!-- <Log in and Log out buttons -->
-                <form class="d-flex" role="sign-in">
-                  <button
-                    type="button"
-                    class="btn btn-light btn-sm"
-                    v-if="!userLoginStatus.isUserLoggedIn"
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-light btn-sm"
-                    v-if="userLoginStatus.isUserLoggedIn"
-                  >
-                    Log Out
-                    <span class="fa-solid fa-arrow-right-from-bracket"></span>
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </nav>
-
-        <!-- Sub-header -->
-        <div id="subheader" class="card">
-          <div
-            class="card-header d-flex justify-content-between align-items-center"
+      <div v-else id="mainApp">
+        <!--Navbar.-->
+        <div id="navbar">
+          <nav
+            class="navbar navbar-expand-lg bg-body-tertiary"
+            :data-bs-theme="darkMode ? 'dark' : 'light'"
           >
-            <button
-              id="sidebar_hamburger"
-              type="button"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#offcanvasScrolling"
-              aria-controls="offcanvasScrolling"
-            >
-              <span class="fa-solid fa-bars"></span>
-            </button>
+            <div class="container-fluid">
+              <!-- Logo and app name -->
+              <a class="navbar-brand" href="#" @click.prevent="go('home')">
+                <img
+                  :src="darkMode? logo.darkMode : logo.lightMode"
+                  alt="Logo"
+                  width="40"
+                  height="35"
+                  class="d-inline-block align-text-middle"
+                />
+                XLearning
+              </a>
 
-            <!-- Checkout button -->
-            <div id="checkoutbutton">
-              <button class="btn btn-success" :disabled="!(itemsInCartLength>0)" @click.prevent = "isActive('checkout') ? go('home') : go('checkout')">
-                <span v-if="itemsInCartLength>0">
-                  <i class="fa-solid fa-cart-shopping"></i>
-                  Checkout ({{itemsInCartLength}})
-                </span>
-                <span v-else>
-                  <i class="fa-solid fa-cart-shopping"></i>
-                  Checkout
-                </span>
+              <!-- Toggle menu icon -->
+              <button
+                class="navbar-toggler dropdown"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+              >
+                <span class="navbar-toggler-icon"></span>
               </button>
-            </div>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Action</a></li>
+                <li><a class="dropdown-item" href="#">Another action</a></li>
+                <li>
+                  <a class="dropdown-item" href="#">Something else here</a>
+                </li>
+              </ul>
 
-            <!-- Offcanvas Sidebar -->
+              <!-- Navigation links logic -->
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="navbar-nav">
+                  <a
+                    :class="[ 'nav-link', isActive('home') ]"
+                    :aria-current="isActive('home') ? 'page' : null"
+                    href="#"
+                    @click.prevent="go('home')"
+                    >Home
+                  </a>
+                  <a
+                    :class="[ 'nav-link', isActive('checkout') ]"
+                    :aria-current="isActive('checkout') ? 'page' : null"
+                    href="#"
+                    @click.prevent="go('checkout')"
+                    >Browse
+                  </a>
+
+                  <a
+                    :class="[ 'nav-link', isActive('dashboard') ]"
+                    :aria-current="isActive('dashboard') ? 'page' : null"
+                    href="#"
+                    @click.prevent="go('dashboard')"
+                    >Dashboard
+                  </a>
+                </div>
+
+                <div class="d-flex align-items-start-end gap-3 ms-auto">
+                  <!-- Dark mode toggle button -->
+                  <form class="d-flex">
+                    <button
+                      type="button"
+                      :class="['btn', 'btn-sm', darkMode ? 'active toggle-dark-button' : 'active toggle-white-button']"
+                      @click="toggleTheme()"
+                      data-bs-toggle="button"
+                      aria-pressed="true"
+                    >
+                      Dark Mode
+                    </button>
+                  </form>
+
+                  <!-- Search bar -->
+                  <form class="d-flex me-2" role="search">
+                    <input
+                      class="form-control me-2"
+                      type="search"
+                      placeholder="Search"
+                      aria-label="Search"
+                    />
+                    <button class="btn btn-outline-success" type="submit">
+                      Search
+                    </button>
+                  </form>
+
+                  <!-- <Log in and Log out buttons -->
+                  <form class="d-flex" role="sign-in">
+                    <button
+                      type="button"
+                      class="btn btn-light btn-sm"
+                      v-if="!userLoginStatus.isUserLoggedIn"
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-light btn-sm"
+                      v-if="userLoginStatus.isUserLoggedIn"
+                    >
+                      Log Out
+                      <span class="fa-solid fa-arrow-right-from-bracket"></span>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </nav>
+
+          <!-- Sub-header -->
+          <div id="subheader" class="card">
             <div
-              class="offcanvas offcanvas-start"
-              data-bs-scroll="true"
-              data-bs-backdrop="false"
-              tabindex="-1"
-              id="offcanvasScrolling"
-              aria-labelledby="offcanvasScrollingLabel"
+              class="card-header d-flex justify-content-between align-items-center"
             >
-              <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasScrollingLabel">
-                  Filter
-                </h5>
+              <button
+                id="sidebar_hamburger"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasScrolling"
+                aria-controls="offcanvasScrolling"
+              >
+                <span class="fa-solid fa-bars"></span>
+              </button>
+
+              <!-- Checkout button -->
+              <div id="checkoutbutton">
                 <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="offcanvas"
-                  aria-label="Close"
-                ></button>
+                  class="btn btn-success"
+                  :disabled="!(itemsInCartLength>0)"
+                  @click.prevent="isActive('checkout') ? go('home') : go('checkout')"
+                >
+                  <span v-if="itemsInCartLength>0">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Checkout ({{itemsInCartLength}})
+                  </span>
+                  <span v-else>
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Checkout
+                  </span>
+                </button>
               </div>
 
-              <!-- Sidebar contents -->
-              <div class="offcanvas-body">
-                <!-- 
-                REQUIREMENT [Front-End] Sort functionality: 
-                -->
-                
-                <!-- Sort container -->
-                <div class="container-fluid" id="sortContainer">
-                  <!-- Sort attributes dropdown -->
-                  <div>
-                    <label for="sortBy" class="form-label">Sort By</label>
-                    <select
-                      class="form-select"
-                      id="sortBy"
-                      v-model="sortAttribute"
-                    >
-                      <option disabled value="">Select an attribute</option>
-                      <option value="subject">Subject</option>
-                      <option value="location">Location</option>
-                      <option value="price">Price</option>
-                      <option value="available">Spaces</option>
-                    </select>
-                  </div>
+              <!-- Offcanvas Sidebar -->
+              <div
+                class="offcanvas offcanvas-start"
+                data-bs-scroll="true"
+                data-bs-backdrop="false"
+                tabindex="-1"
+                id="offcanvasScrolling"
+                aria-labelledby="offcanvasScrollingLabel"
+              >
+                <div class="offcanvas-header">
+                  <h5 class="offcanvas-title" id="offcanvasScrollingLabel">
+                    Filter
+                  </h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="offcanvas"
+                    aria-label="Close"
+                  ></button>
+                </div>
 
-                  <!-- Sort order -->
-                  <div class="mt-3" id="sortOrder">
-                    <input
-                      type="radio"
-                      id="sortOrderAsc"
-                      value="asc"
-                      v-model="sortOrder"
-                    />
-                    <label for="sortOrderAsc">Ascending</label>
+                <!-- Sidebar contents -->
+                <div class="offcanvas-body">
+                  <!-- 
+                  REQUIREMENT [Front-End] Sort functionality: 
+                  -->
 
-                    <input
-                      type="radio"
-                      id="sortOrderDesc"
-                      value="desc"
-                      v-model="sortOrder"
-                    />
-                    <label for="sortOrderDesc">Descending</label>
+                  <!-- Sort container -->
+                  <div class="container-fluid" id="sortContainer">
+                    <!-- Sort attributes dropdown -->
+                    <div>
+                      <label for="sortBy" class="form-label">Sort By</label>
+                      <select
+                        class="form-select"
+                        id="sortBy"
+                        v-model="sortAttribute"
+                      >
+                        <option disabled value="">Select an attribute</option>
+                        <option value="subject">Subject</option>
+                        <option value="location">Location</option>
+                        <option value="price">Price</option>
+                        <option value="available">Spaces</option>
+                      </select>
+                    </div>
+
+                    <!-- Sort order -->
+                    <div class="mt-3" id="sortOrder">
+                      <input
+                        type="radio"
+                        id="sortOrderAsc"
+                        value="asc"
+                        v-model="sortOrder"
+                      />
+                      <label for="sortOrderAsc">Ascending</label>
+
+                      <input
+                        type="radio"
+                        id="sortOrderDesc"
+                        value="desc"
+                        v-model="sortOrder"
+                      />
+                      <label for="sortOrderDesc">Descending</label>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Conditional rendering of pages -->
-      <!-- Home Page -->
-      <div v-if="currentView === 'home'">
-        <div class="container-fluid" id="main_content_container">
-          <div class="row mt-4">
-            <!-- 
-            REQUIREMENT [Front-End] “Display List of Lessons” functionality:
-            -->
-            <div
-              class="col-md-3 mb-4"
-              v-for="lesson in sortedLessons"
-              :key="lesson.id"
-            >
-              <div id="lesson_card" class="card h-100 shadow-sm d-flex flex-column">
-                <img
-                  :src="lesson.img"
-                  class="card-img-top"
-                  alt="Lesson Image"
-                />
-                <div class="card-body text-center">
-                  <div id="lesson_title">
-                    <h5 class="card-title">{{ lesson.subject }}</h5>
-                  </div>
-
-                  <div class="card-text">
-                    <!-- Lesson description -->
-                    <div id="lesson_description">
-                      {{ lesson.description }}
+        <!-- Conditional rendering of pages -->
+        <!-- Home Page -->
+        <div v-if="currentView === 'home'">
+          <div class="container-fluid" id="main_content_container">
+            <div class="row mt-4">
+              <!-- 
+              REQUIREMENT [Front-End] “Display List of Lessons” functionality:
+              -->
+              <div
+                class="col-md-3 mb-4"
+                v-for="lesson in sortedLessons"
+                :key="lesson.id"
+              >
+                <div
+                  id="lesson_card"
+                  class="card h-100 shadow-sm d-flex flex-column"
+                >
+                  <img
+                    :src="`${backendUrl}/lesson-images/${lesson.img}`"
+                    class="card-img-top"
+                    alt="Lesson Image"
+                  />
+                  <div class="card-body text-center">
+                    <div id="lesson_title">
+                      <h5 class="card-title">{{ lesson.subject }}</h5>
                     </div>
 
-                    <!-- Lesson Info -->
-                    <div class="lesson_info">
+                    <div class="card-text">
+                      <!-- Lesson description -->
+                      <div id="lesson_description">
+                        {{ lesson.description }}
+                      </div>
 
-                      <!-- Location -->
-                      <div id="lesson_location"></div>
-                      <span>
-                        <i class="fa-solid fa-location-dot"></i> Venue: {{lesson.location}}
-                      </span><br>
+                      <!-- Lesson Info -->
+                      <div class="lesson_info">
+                        <!-- Location -->
+                        <div id="lesson_location"></div>
+                        <span>
+                          <i class="fa-solid fa-location-dot"></i> Venue:
+                          {{lesson.location}} </span
+                        ><br />
 
-                      <!-- Spaces available -->
-                      <div id="space_available" class="mt-2">
-                        <span v-if="itemsLeft(lesson)>0" id="items_left">Only {{itemsLeft(lesson)}} seats left! <br>
-                          <span>
-                            Secure yours now at only 
-                            <span id="lesson_price">$ {{lesson.price}}</span>
+                        <!-- Spaces available -->
+                        <div id="space_available" class="mt-2">
+                          <span v-if="itemsLeft(lesson)>0" id="items_left"
+                            >Only {{itemsLeft(lesson)}} seats left! <br />
+                            <span>
+                              Secure yours now at only
+                              <span id="lesson_price">$ {{lesson.price}}</span>
+                            </span>
                           </span>
-                        </span>
-                        <span v-else id="outOfStockText" >Out of stock</span>
+                          <span v-else id="outOfStockText">Out of stock</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Add Cart Button: Only visible when space is larger than 0. -->
+                    <div class="text-center pb-2 mt-3">
+                      <button
+                        id="addToCartBtn"
+                        @click="addToCart(lesson)"
+                        :disabled="!canAddToCart(lesson)"
+                      >
+                        Add To Cart
+                      </button>
+                      <span>
+                        <button>
+                          <i class="fa-solid fa-cart-plus"></i>
+                          {{numberOfItemInCart(lesson.id)}}
+                        </button>
+                      </span>
+                      <span>
+                        <button
+                          v-show="numberOfItemInCart(lesson.id)>0"
+                          @click="removeLessonFromCart(lesson)"
+                        >
+                          <i class="fa-solid fa-minus"></i>
+                        </button>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkout Page -->
+        <div
+          v-if="currentView === 'checkout'"
+          class="checkout_main_container d-flex mx-2"
+        >
+          <div
+            class="container-fluid px-0 w-100"
+            id="checkout_content_container"
+          >
+            <!-- Checkout header -->
+            <div id="checkout_header" class="text-center py-1">
+              <h5>Checkout ({{itemsInCartLength}} items)</h5>
+            </div>
+
+            <!-- Checkout details -->
+            <div class="checkout_detail_container container p-2">
+              <div class="checkout_boxes container">
+                <!-- Box for customer details -->
+                <div class="row row-cols-4" id="checkout_customer_details_box">
+                  <!-- Box row number -->
+                  <div class="checkout_row_number">1</div>
+                  <!-- Box header name -->
+                  <div class="col-2 checkout_header_name">Customer Details</div>
+                  <!-- Box customer name and phone number -->
+                  <div class="col-auto">
+                    <div class="row">
+                      <!-- Name -->
+                      <div class="col">
+                        <label for="customer_name" class="form-label"
+                          >Name</label
+                        >
+                        <input
+                          v-model.trim="order.name"
+                          v-on:input="validateOrderDetails()"
+                          id="customer_name"
+                          type="text"
+                          class="form-control"
+                          aria-label="Name"
+                          :class="{'is-invalid': orderValidation.nameError, 'is-valid': !orderValidation.nameError && order.name}"
+                          required
+                        />
+                        <div class="invalid-feedback">
+                          {{ orderValidation.nameErrorMessage }}
+                        </div>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>  
+                      <!-- Phone number -->
+                      <div class="col">
+                        <label for="phoner_number" class="form-label"
+                          >Phone number</label
+                        >
+                        <input
+                          v-model.trim="order.phoneNumber"
+                          v-on:input="validateOrderDetails()"
+                          id="phoner_number"
+                          type="text"
+                          class="form-control"
+                          aria-label="Phone number"
+                          :class="{'is-invalid': orderValidation.phoneNumberError, 'is-valid': !orderValidation.phoneNumberError && order.phoneNumber}"
+                          required
+                        />
+                        <div class="invalid-feedback">
+                          {{ orderValidation.phoneErrorMessage }}
+                        </div>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
                       </div>
                     </div>
                   </div>
-
-                  <!-- Add Cart Button: Only visible when space is larger than 0. -->
-                  <div class="text-center pb-2 mt-3">
-                    <button 
-                      id="addToCartBtn"
-                      @click="addToCart(lesson)" 
-                      :disabled="!canAddToCart(lesson)"
-                    >
-                      Add To Cart
-                    </button>
-                    <span>
-                      <button>
-                        <i class="fa-solid fa-cart-plus"></i>
-                        {{numberOfItemInCart(lesson.id)}}
-                      </button>
-                    </span>
-                    <span>
-                      <button v-show="numberOfItemInCart(lesson.id)>0" @click="removeLessonFromCart(lesson)">
-                        <i class="fa-solid fa-minus"></i>
-                      </button>
-                    </span>
+                  <div class="col">
+                    <button @click="placeOrder()">Change</button>
                   </div>
                 </div>
               </div>
+
+              <!-- Address -->
+              <div class="checkout_boxes container">
+                <div class="row row-cols-4">
+                  <!-- Box row number -->
+                  <div class="checkout_row_number">2</div>
+                  <!-- Box header name -->
+                  <div class="col-2 checkout_header_name">Shipping address</div>
+                  <!-- Box shipping details -->
+                  <div class="col">
+                    <input v-model.trim="order.address" type="text" class="form-control" placeholder="Address" />
+                  </div>
+                  <div class="col">
+                    <button>Change</button>
+                  </div>
+                </div>
+              </div>
+
+              
+
+              
             </div>
+          </div>
+          <div class="container-fluid">
+            <h3>Order Summary</h3>
+            <p>Total items: {{itemsInCartLength}}</p>
+            <!-- <p>Total price: $ {{totalPrice}}</p> -->
+          </div>
+        </div>
+
+        <div v-if="currentView === 'dashboard'">
+          <div class="container-fluid" id="main_content_container">
+            <h2>Dashboard</h2>
+            <p>User info and stats...</p>
           </div>
         </div>
       </div>
-
-      <!-- Checkout Page -->
-      <div v-if="currentView === 'checkout'">
-        <div class="container-fluid" id="checkout_content_container">
-          <h2>Checkout page</h2>
-          
-        </div>
-      </div>
-
-      <div v-if="currentView === 'dashboard'">
-        <div class="container-fluid" id="main_content_container">
-          <h2>Dashboard</h2>
-          <p>User info and stats...</p>
-        </div>
-      </div>
-
-      <!-- End of main app. -->
     </div>
+    <!-- End of main app. -->
 
     <!--Main app script-->
     <script src="./js/main.js"></script>
