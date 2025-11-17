@@ -37,7 +37,10 @@ var app = new Vue({
       phoneNumberError: false,
       nameErrorMessage: "Name must contain only letters and spaces.",
       phoneErrorMessage: "Phone number must contain only digits, spaces, dashes, parentheses, and may start with +."
-    }
+    },
+
+    // Array to hold quantity of each lesson in the cart.
+    lessonQuantitiesinCart: []
   },
   methods: {
     go: function(view) {
@@ -57,25 +60,24 @@ var app = new Vue({
 
     // Check if we can add more items to the cart based on availability.
     canAddToCart(lesson){
-      return this.numberOfItemInCart(lesson.id) < lesson.available;
+      return this.numberOfItemInCart(lesson._id) < lesson.available;
     },
 
     addToCart(lesson) {
       // Only add to cart if lesson is available.
       if (this.canAddToCart(lesson)) {
-        this.cart.push({ lessonId: lesson.id, lesson: lesson });
-        // this.cart.push(lesson.id);
+        this.cart.push({ lessonId: lesson._id, lesson: lesson });
       }
     },
 
     // Calculate how many items are left that can be added to the cart.
     itemsLeft(lesson) {
-      return lesson.available - this.numberOfItemInCart(lesson.id);
+      return lesson.available - this.numberOfItemInCart(lesson._id);
     },
 
     removeLessonFromCart(lesson){
       // Find the index of the lesson to remove.
-      const lessonToRemoveIndex = this.cart.findIndex(item => item.lessonId === lesson.id);
+      const lessonToRemoveIndex = this.cart.findIndex(item => item.lessonId === lesson._id);
 
       // Remove if the lesson is found in the cart.
       if (lessonToRemoveIndex > -1) {
@@ -110,6 +112,7 @@ var app = new Vue({
       .finally(()=> console.log("Fetch attempt finished."));
     },
 
+    // Fetch a single lesson by its ID.
     fetchLessonById(id){
       return fetch(`${this.backendUrl}/collections/lessons/${id}`)
       .then(response => response.json())
@@ -121,6 +124,7 @@ var app = new Vue({
       .finally(()=> console.log("Fetch by ID attempt finished."))
     },
 
+    // Cart: Load full lesson details for items in the cart using fetchLessonById.
     loadCartLessons() {
       this.cart.forEach(item => {
         if (!item.lesson) {
@@ -130,7 +134,6 @@ var app = new Vue({
         }
       });
     },
-
 
     validateOrderDetails(){
       const namePattern = /^[a-zA-Z\s]+$/;
@@ -162,8 +165,12 @@ var app = new Vue({
 
       const orderDetails = {
         name: this.order.name,
-        phoneNumber: this.order.phoneNumber
+        phoneNumber: this.order.phoneNumber,
+        address: this.order.address,
+        lessons: this.cart.map(item =>item.lessonId)
       }
+
+      console.log("Order payload:", orderDetails);
 
       fetch(`${this.backendUrl}/checkout/place-order`, {
         method: 'POST',
@@ -176,13 +183,61 @@ var app = new Vue({
       })
       .then(data => {
         console.log("Order placed successfully:", data);
+
+        // Update stock after order placement.
+        this.updateStockAfterOrder()
+        .then(()=>{
+          console.log("Stock updated after order.");
+        });
+
         // Clear order details after successful order placement.
         this.order.name = '';
         this.order.phoneNumber = '';
+        this.order.address = '';
+        this.cart = [];
       })
       .catch(error => {
         console.error("Error placing order:", error);
       });
+    },
+
+    // Method to update lesson item by attribute.
+    updateLessonAttribute(attributeName, id, newValue){
+
+      return fetch(`${this.backendUrl}/collections/lessons/${id}?attribute=${attributeName}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({[attributeName]: newValue})
+      })
+      .then(response => {
+        if(!response.ok) throw new Error("Network response was not ok");
+        return response.json();
+      })
+      .then(data =>{
+        console.log(`Lesson ${id} updated:`, data);
+      })
+      .catch(error => {
+        console.error(`Error updating lesson ${id}:`, error);
+      });
+    },
+
+    // Method to update stock after order placement.  
+    updateStockAfterOrder(){
+      const updatePromises = this.distinctCartItems.map(item => {
+
+        // get quantity ordered for this item.
+        const quantityOrdered = this.numberOfItemInCart(item.lessonId);
+
+        // get available stock for this item.
+        return this.fetchLessonById(item.lessonId).then(lessonData => {
+          const newAvailableStock = lessonData.available - quantityOrdered;
+
+          // update the lesson's available stock after the current avnailable stock is fetched.
+          return this.updateLessonAttribute('available', item.lessonId, newAvailableStock);
+        });    
+      });
+
+      return Promise.all(updatePromises);
     }
   },
   computed: {
@@ -213,6 +268,7 @@ var app = new Vue({
       return this.cart.length || "";
     },
 
+    // Get distinct items in the cart.
     distinctCartItems() {
       const seen = new Set();
       return this.cart.filter(item => {

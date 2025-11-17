@@ -268,7 +268,7 @@
               <div
                 class="col-md-3 mb-4"
                 v-for="lesson in sortedLessons"
-                :key="lesson.id"
+                :key="lesson._id"
               >
                 <div
                   id="lesson_card"
@@ -325,12 +325,12 @@
                       <span>
                         <button>
                           <i class="fa-solid fa-cart-plus"></i>
-                          {{numberOfItemInCart(lesson.id)}}
+                          {{numberOfItemInCart(lesson._id)}}
                         </button>
                       </span>
                       <span>
                         <button
-                          v-show="numberOfItemInCart(lesson.id)>0"
+                          v-show="numberOfItemInCart(lesson._id)>0"
                           @click="removeLessonFromCart(lesson)"
                         >
                           <i class="fa-solid fa-minus"></i>
@@ -359,7 +359,7 @@
             </div>
 
             <!-- Checkout details -->
-            <div class="checkout_detail_container container p-2">
+            <div class="checkout_detail_container container-fluid p-2">
               <div class="checkout_boxes container">
                 <!-- Box for customer details -->
                 <div class="row row-cols-4" id="checkout_customer_details_box">
@@ -388,10 +388,8 @@
                         <div class="invalid-feedback">
                           {{ orderValidation.nameErrorMessage }}
                         </div>
-                        <div class="valid-feedback">
-                          Looks good!
-                        </div>
-                      </div>  
+                        <div class="valid-feedback">Looks good!</div>
+                      </div>
                       <!-- Phone number -->
                       <div class="col">
                         <label for="phoner_number" class="form-label"
@@ -410,9 +408,7 @@
                         <div class="invalid-feedback">
                           {{ orderValidation.phoneErrorMessage }}
                         </div>
-                        <div class="valid-feedback">
-                          Looks good!
-                        </div>
+                        <div class="valid-feedback">Looks good!</div>
                       </div>
                     </div>
                   </div>
@@ -431,7 +427,12 @@
                   <div class="col-2 checkout_header_name">Shipping address</div>
                   <!-- Box shipping details -->
                   <div class="col">
-                    <input v-model.trim="order.address" type="text" class="form-control" placeholder="Address" />
+                    <input
+                      v-model.trim="order.address"
+                      type="text"
+                      class="form-control"
+                      placeholder="Address"
+                    />
                   </div>
                   <div class="col">
                     <button>Change</button>
@@ -439,9 +440,59 @@
                 </div>
               </div>
 
-              
-
-              
+              <!-- Review items -->
+              <div class="checkout_boxes container">
+                <div class="row row-cols-2">
+                  <!-- Box row number -->
+                  <div class="checkout_row_number">3</div>
+                  <!-- Box header name -->
+                  <div class="col-auto checkout_header_name">
+                    Review items and shipping
+                  </div>
+                </div>
+                <!-- Box shipping details -->
+                 <div class="review_item_main container mx-auto mt-2">
+                    <div
+                      v-for="item in distinctCartItems"
+                      :key="item.id"
+                      class="review_items container"
+                    >
+                      <div class="row row-cols-2 py-3">
+                        <!-- item image -->
+                        <div class="col-auto align-items-center">
+                          <div id="order_image_container" class="container">
+                            <div id="order_image">
+                              <img
+                              :src=`${backendUrl}/lesson-images/${item.lesson.img}`
+                              alt="lesson_image" />
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div id="checkout_order_details" class="container">
+                            <div>
+                              <h5>{{item.lesson.subject}}</h5>
+                            </div>
+                            <div>{{item.lesson.description}}</div>
+                            <div>
+                              <span>
+                                Quantity: {{numberOfItemInCart(item.lesson._id)}}
+                                <span>
+                                  <button
+                                    @click="removeLessonFromCart(item.lesson)"
+                                  >
+                                    Remove
+                                  </button>
+                                </span>
+                              </span>
+                            </div>
+                            <div>Price: $ {{item.lesson.price}}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                 </div>
+              </div>
             </div>
           </div>
           <div class="container-fluid">

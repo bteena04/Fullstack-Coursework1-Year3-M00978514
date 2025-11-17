@@ -167,8 +167,22 @@ body{
   max-width: 25%;
 }
 
+.review_item_main{
+    border: 1px solid gray;
+}
+
+.review_items{
+    border-bottom: 1px solid gray;
+}
+
 #order_image img {
-  width: 120px;   
-  height: auto;   
-  object-fit: cover;
+    width: 200px;   
+    height: auto;   
+    object-fit: cover;
+}
+
+#order_image_container {
+    display: flex;
+    align-items: center;
+    height: 100%;
 }
