@@ -18,6 +18,9 @@ var app = new Vue({
     sortAttribute: '',
     sortOrder: 'asc',
 
+    // Search query
+    searchQuery: '',
+
     // Shopping cart array to hold lesson IDs.
     cart: [],
 
@@ -124,6 +127,31 @@ var app = new Vue({
       .finally(()=> console.log("Fetch by ID attempt finished."))
     },
 
+    // Method for calling api lesson search.
+    fetchLessonBySearchQuery(query){
+      return fetch(`${this.backendUrl}/collections/lessons/search?search=${encodeURIComponent(query)}`)
+      .then(response => response.json())
+      .then(res => {
+        console.log("Fetched lessons by search query:", res);
+        return res;
+      })
+      .catch(err => {console.error("Error searching lessons.", err)})
+    },
+
+    // Method to search lesson based on user input in seach bar.
+    searchLessons(){
+      // If search input is empty return all lessons.
+      if(!this.searchQuery || this.searchQuery.trim() === ""){
+        this.fetchLessons()
+      } else {
+        this.fetchLessonBySearchQuery(this.searchQuery)
+        .then(searchedLessonData=> {
+          this.lessons = searchedLessonData;
+        })
+        .catch(err => console.error("Error searching lessons:", err));
+      }
+    },
+
     // Cart: Load full lesson details for items in the cart using fetchLessonById.
     loadCartLessons() {
       this.cart.forEach(item => {
@@ -201,13 +229,13 @@ var app = new Vue({
       });
     },
 
-    // Method to update lesson item by attribute.
-    updateLessonAttribute(attributeName, id, newValue){
+    // Method to update lesson item.
+    updateLessonAttribute(id, fieldsToUpdate){
 
-      return fetch(`${this.backendUrl}/collections/lessons/${id}?attribute=${attributeName}`, {
+      return fetch(`${this.backendUrl}/collections/lessons/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({[attributeName]: newValue})
+        body: JSON.stringify(fieldsToUpdate)
       })
       .then(response => {
         if(!response.ok) throw new Error("Network response was not ok");
@@ -232,8 +260,8 @@ var app = new Vue({
         return this.fetchLessonById(item.lessonId).then(lessonData => {
           const newAvailableStock = lessonData.available - quantityOrdered;
 
-          // update the lesson's available stock after the current avnailable stock is fetched.
-          return this.updateLessonAttribute('available', item.lessonId, newAvailableStock);
+          // update the lesson's available stock after the current available stock is fetched.
+          return this.updateLessonAttribute(item.lessonId,{ available: newAvailableStock});
         });    
       });
 

@@ -121,6 +121,8 @@
                   <!-- Search bar -->
                   <form class="d-flex me-2" role="search">
                     <input
+                      v-on:input="searchLessons()"
+                      v-model="searchQuery"
                       class="form-control me-2"
                       type="search"
                       placeholder="Search"
@@ -128,6 +130,7 @@
                     />
                     <button class="btn btn-outline-success" type="submit">
                       Search
+                      <div>{{searchQuery}}</div>
                     </button>
                   </form>
 
