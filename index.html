@@ -87,21 +87,6 @@
                     @click.prevent="go('home')"
                     >Home
                   </a>
-                  <a
-                    :class="[ 'nav-link', isActive('checkout') ]"
-                    :aria-current="isActive('checkout') ? 'page' : null"
-                    href="#"
-                    @click.prevent="go('checkout')"
-                    >Browse
-                  </a>
-
-                  <a
-                    :class="[ 'nav-link', isActive('dashboard') ]"
-                    :aria-current="isActive('dashboard') ? 'page' : null"
-                    href="#"
-                    @click.prevent="go('dashboard')"
-                    >Dashboard
-                  </a>
                 </div>
 
                 <div class="d-flex align-items-start-end gap-3 ms-auto">
@@ -128,10 +113,6 @@
                       placeholder="Search"
                       aria-label="Search"
                     />
-                    <button class="btn btn-outline-success" type="submit">
-                      Search
-                      <div>{{searchQuery}}</div>
-                    </button>
                   </form>
 
                   <!-- <Log in and Log out buttons -->
@@ -176,7 +157,7 @@
               <div id="checkoutbutton">
                 <button
                   class="btn btn-success"
-                  :disabled="!(itemsInCartLength>0)"
+                  :disabled="!(itemsInCartLength>0) && currentView !== 'checkout'"
                   @click.prevent="isActive('checkout') ? go('home') : go('checkout')"
                 >
                   <span v-if="itemsInCartLength>0">
@@ -264,6 +245,7 @@
         <!-- Home Page -->
         <div v-if="currentView === 'home'">
           <div class="container-fluid" id="main_content_container">
+            <div id="NoSearchItemsFound" v-show="noSearchedItemFound" class="text-center">No such items was found</div>
             <div class="row mt-4">
               <!-- 
               REQUIREMENT [Front-End] “Display List of Lessons” functionality:
@@ -365,19 +347,19 @@
             <div class="checkout_detail_container container-fluid p-2">
               <div class="checkout_boxes container">
                 <!-- Box for customer details -->
-                <div class="row row-cols-4" id="checkout_customer_details_box">
+                <div class="row row-cols-4 d-flex align-items-center" id="checkout_customer_details_box">
                   <!-- Box row number -->
-                  <div class="checkout_row_number">1</div>
+                  <div class="checkout_row_number mb-2">1</div>
                   <!-- Box header name -->
-                  <div class="col-2 checkout_header_name">Customer Details</div>
+                  <div class="col-auto checkout_header_name mb-2">Customer Details</div>
                   <!-- Box customer name and phone number -->
                   <div class="col-auto">
-                    <div class="row">
+                    <div class="row align-items-center">
                       <!-- Name -->
-                      <div class="col">
-                        <label for="customer_name" class="form-label"
+                      <div class="col-auto">
+                        <!-- <label for="customer_name" class="form-label"
                           >Name</label
-                        >
+                        > -->
                         <input
                           v-model.trim="order.name"
                           v-on:input="validateOrderDetails()"
@@ -385,6 +367,7 @@
                           type="text"
                           class="form-control"
                           aria-label="Name"
+                          placeholder="Name"
                           :class="{'is-invalid': orderValidation.nameError, 'is-valid': !orderValidation.nameError && order.name}"
                           required
                         />
@@ -394,10 +377,10 @@
                         <div class="valid-feedback">Looks good!</div>
                       </div>
                       <!-- Phone number -->
-                      <div class="col">
-                        <label for="phoner_number" class="form-label"
+                      <div class="col-auto">
+                        <!-- <label for="phoner_number" class="form-label"
                           >Phone number</label
-                        >
+                        > -->
                         <input
                           v-model.trim="order.phoneNumber"
                           v-on:input="validateOrderDetails()"
@@ -405,6 +388,7 @@
                           type="text"
                           class="form-control"
                           aria-label="Phone number"
+                          placeholder="Phone number"
                           :class="{'is-invalid': orderValidation.phoneNumberError, 'is-valid': !orderValidation.phoneNumberError && order.phoneNumber}"
                           required
                         />
@@ -415,31 +399,6 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col">
-                    <button @click="placeOrder()">Change</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Address -->
-              <div class="checkout_boxes container">
-                <div class="row row-cols-4">
-                  <!-- Box row number -->
-                  <div class="checkout_row_number">2</div>
-                  <!-- Box header name -->
-                  <div class="col-2 checkout_header_name">Shipping address</div>
-                  <!-- Box shipping details -->
-                  <div class="col">
-                    <input
-                      v-model.trim="order.address"
-                      type="text"
-                      class="form-control"
-                      placeholder="Address"
-                    />
-                  </div>
-                  <div class="col">
-                    <button>Change</button>
-                  </div>
                 </div>
               </div>
 
@@ -447,10 +406,13 @@
               <div class="checkout_boxes container">
                 <div class="row row-cols-2">
                   <!-- Box row number -->
-                  <div class="checkout_row_number">3</div>
+                  <div class="checkout_row_number">2</div>
                   <!-- Box header name -->
                   <div class="col-auto checkout_header_name">
-                    Review items and shipping
+                    Review items
+                  </div>
+                  <div id="review_noItemsInCart" v-if="itemsInCartLength===''">
+                    Add items to the cart and review for checkout.
                   </div>
                 </div>
                 <!-- Box shipping details -->
@@ -476,8 +438,8 @@
                             <div>
                               <h5>{{item.lesson.subject}}</h5>
                             </div>
-                            <div>{{item.lesson.description}}</div>
-                            <div>
+                            <div class="review_itemDescription mb-2">{{item.lesson.description}}</div>
+                            <div class="mb-2">
                               <span>
                                 Quantity: {{numberOfItemInCart(item.lesson._id)}}
                                 <span>
@@ -496,19 +458,18 @@
                     </div>
                  </div>
               </div>
+
+              <div class="checkoutButton container mt-2" v-if="itemsInCartLength>0">
+                <div class="col d-flex">
+                    <button type="button" class="btn btn-primary ms-auto" @click="placeOrder()">Proceed to checkout</button>
+                  </div>
+              </div>
             </div>
           </div>
           <div class="container-fluid">
             <h3>Order Summary</h3>
             <p>Total items: {{itemsInCartLength}}</p>
             <!-- <p>Total price: $ {{totalPrice}}</p> -->
-          </div>
-        </div>
-
-        <div v-if="currentView === 'dashboard'">
-          <div class="container-fluid" id="main_content_container">
-            <h2>Dashboard</h2>
-            <p>User info and stats...</p>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@
 var app = new Vue({
   el: '#app',
   data: {
-    backendUrl: 'http://localhost:3000', //https://fullstack-coursework1-year3-expressapp.onrender.com/
+    backendUrl: 'https://fullstack-coursework1-year3-expressapp.onrender.com/', //https://fullstack-coursework1-year3-expressapp.onrender.com/
     serverStatus: null, // null = unknown, true = up, false = down
     currentView: 'home',
     darkMode: true,
@@ -43,7 +43,10 @@ var app = new Vue({
     },
 
     // Array to hold quantity of each lesson in the cart.
-    lessonQuantitiesinCart: []
+    lessonQuantitiesinCart: [],
+
+    // Search
+    noSearchedItemFound: false
   },
   methods: {
     go: function(view) {
@@ -135,20 +138,33 @@ var app = new Vue({
         console.log("Fetched lessons by search query:", res);
         return res;
       })
-      .catch(err => {console.error("Error searching lessons.", err)})
+      .catch(err => {
+        console.error("Error searching lessons.", err);
+        return []; // return an empty array if an error has been encountered.
+      })
     },
 
     // Method to search lesson based on user input in seach bar.
     searchLessons(){
-      // If search input is empty return all lessons.
       if(!this.searchQuery || this.searchQuery.trim() === ""){
-        this.fetchLessons()
+        // If search input is empty return all lessons.
+        this.fetchLessons();
+        this.noSearchedItemFound =  false;
       } else {
         this.fetchLessonBySearchQuery(this.searchQuery)
         .then(searchedLessonData=> {
           this.lessons = searchedLessonData;
+
+          if (this.lessons.length ===0){
+            this.noSearchedItemFound =  true;
+          } else {
+            this.noSearchedItemFound = false;
+          }
         })
-        .catch(err => console.error("Error searching lessons:", err));
+        .catch(err => {
+          console.error("Error searching lessons:", err);
+          this.noSearchedItemFound = true;
+        });
       }
     },
 
