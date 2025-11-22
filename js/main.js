@@ -2,7 +2,7 @@
 var app = new Vue({
   el: '#app',
   data: {
-    backendUrl: 'https://fullstack-coursework1-year3-expressapp.onrender.com', //https://fullstack-coursework1-year3-expressapp.onrender.com/
+    backendUrl: 'http://localhost:3000', //https://fullstack-coursework1-year3-expressapp.onrender.com/
     serverStatus: null, // null = unknown, true = up, false = down
     currentView: 'home',
     darkMode: true,
@@ -46,7 +46,10 @@ var app = new Vue({
     lessonQuantitiesinCart: [],
 
     // Search
-    noSearchedItemFound: false
+    noSearchedItemFound: false,
+
+    // Purchase proccess in checkout.
+    purchaseProcessing: false
   },
   methods: {
     go: function(view) {
@@ -93,7 +96,7 @@ var app = new Vue({
 
     // Method to check if the backend server is up.
     checkServerStatus(){
-      fetch(this.backendUrl)
+      return fetch(this.backendUrl)
       .then(response => {
         if (!response.ok) throw new Error("Network response was not ok");
         return response.json();
@@ -109,7 +112,7 @@ var app = new Vue({
 
     // Method to fetch lessons from the server.
     fetchLessons(){
-      fetch(`${this.backendUrl}/collections/lessons`)
+      return fetch(`${this.backendUrl}/collections/lessons`)
       .then(response => response.json())
       .then(res => {
         this.lessons =res; // store the fetched lessons in the lesson array.
@@ -132,10 +135,9 @@ var app = new Vue({
 
     // Method for calling api lesson search.
     fetchLessonBySearchQuery(query){
-      return fetch(`${this.backendUrl}/collections/lessons/search?search=${encodeURIComponent(query)}`)
+      return fetch(`${this.backendUrl}/lessons/search?search=${encodeURIComponent(query)}`)
       .then(response => response.json())
       .then(res => {
-        console.log("Fetched lessons by search query:", res);
         return res;
       })
       .catch(err => {
@@ -155,6 +157,7 @@ var app = new Vue({
         .then(searchedLessonData=> {
           this.lessons = searchedLessonData;
 
+          // No match found.
           if (this.lessons.length ===0){
             this.noSearchedItemFound =  true;
           } else {
@@ -203,20 +206,26 @@ var app = new Vue({
 
     // Method to place an order.
     placeOrder(){
+      const orderDate = new Date(); // Date type variable to hold the date the order has been placed.
+
       if (!this.validateOrderDetails()){
         return;
       }
 
+      // Order added check.
+      this.purchaseProcessing= true;
+
+
       const orderDetails = {
         name: this.order.name,
         phoneNumber: this.order.phoneNumber,
-        address: this.order.address,
-        lessons: this.cart.map(item =>item.lessonId)
+        lessons: this.cart.map(item =>item.lessonId),
+        orderDate: orderDate.toDateString()
       }
 
       console.log("Order payload:", orderDetails);
 
-      fetch(`${this.backendUrl}/checkout/place-order`, {
+      return fetch(`${this.backendUrl}/checkout/place-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderDetails)
@@ -226,14 +235,16 @@ var app = new Vue({
         return response.json();
       })
       .then(data => {
-        console.log("Order placed successfully:", data);
+        this.purchaseProcessing= false;
+        alert(data.message);
 
         // Update stock after order placement.
-        this.updateStockAfterOrder()
+        return this.updateStockAfterOrder()
         .then(()=>{
           console.log("Stock updated after order.");
         });
-
+      })
+      .then(()=>{
         // Clear order details after successful order placement.
         this.order.name = '';
         this.order.phoneNumber = '';
@@ -241,8 +252,23 @@ var app = new Vue({
         this.cart = [];
       })
       .catch(error => {
+        alert('Error placing order, please try again later');
         console.error("Error placing order:", error);
       });
+    },
+
+    submitOrder() {
+      this.placeOrder()
+        .then(() => {
+          // recall the fetch lessons
+          return this.checkServerStatus();   
+        })
+        .then(() => {
+          this.go('home');                 
+        })
+        .catch(err => {
+          console.error("Error during order submission:", err);
+        });
     },
 
     // Method to update lesson item.
