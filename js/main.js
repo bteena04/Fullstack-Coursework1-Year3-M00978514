@@ -38,9 +38,12 @@ var app = new Vue({
     orderValidation: {
       nameError: false,
       phoneNumberError: false,
-      nameErrorMessage: "Name must contain only letters and spaces.",
-      phoneErrorMessage: "Phone number must contain only digits, spaces, dashes, parentheses, and may start with +."
+      nameErrorMessage: "Name must contain only letters.",
+      phoneErrorMessage: "Phone number must contain only digits."
     },
+
+    // Order success
+    successOrderMsg: '',
 
     // Array to hold quantity of each lesson in the cart.
     lessonQuantitiesinCart: [],
@@ -48,8 +51,6 @@ var app = new Vue({
     // Search
     noSearchedItemFound: false,
 
-    // Purchase proccess in checkout.
-    purchaseProcessing: false
   },
   methods: {
     go: function(view) {
@@ -60,6 +61,12 @@ var app = new Vue({
     },
     toggleTheme: function() {
       this.darkMode = !this.darkMode;
+    },
+
+    // Clear sorting data.
+    clearSorting(){
+      this.sortAttribute = "";
+      this.sortOrder = "";
     },
 
     // Count how many particular item is in the cart.
@@ -184,7 +191,7 @@ var app = new Vue({
 
     validateOrderDetails(){
       const namePattern = /^[a-zA-Z\s]+$/;
-      const phonePattern = /^\+?[0-9\s\-()]+$/; 
+      const phonePattern = /^[0-9]+$/;
 
       // Validate name
       if(!this.order.name || !namePattern.test(this.order.name)) {
@@ -201,7 +208,7 @@ var app = new Vue({
       }
 
       // Returns true only if both are valid
-      return !this.orderValidation.nameError && !this.orderValidation.phoneError;   
+      return !this.orderValidation.nameError && !this.orderValidation.phoneNumberError;   
     },
 
     // Method to place an order.
@@ -211,10 +218,6 @@ var app = new Vue({
       if (!this.validateOrderDetails()){
         return;
       }
-
-      // Order added check.
-      this.purchaseProcessing= true;
-
 
       const orderDetails = {
         name: this.order.name,
@@ -235,8 +238,7 @@ var app = new Vue({
         return response.json();
       })
       .then(data => {
-        this.purchaseProcessing= false;
-        alert(data.message);
+        this.successOrderMsg = `Your order number is ${data.orderId}`
 
         // Update stock after order placement.
         return this.updateStockAfterOrder()
@@ -308,12 +310,20 @@ var app = new Vue({
       });
 
       return Promise.all(updatePromises);
+    },
+
+    triggerSuccessOrderMsg(){
+      const toastLiveExample = document.getElementById('liveToast')
+      const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+
+      toastBootstrap.show()
     }
   },
   computed: {
     
     sortedLessons() 
     {
+      // Return the original lesson array if no sort attribute is provided.
       if (!this.sortAttribute) return this.lessons;
 
       // Copy array to avoid modifying original
@@ -346,7 +356,13 @@ var app = new Vue({
         seen.add(item.lessonId);
         return true;
       });
-      }
+    },
+
+    isOrderValid() {
+      const namePattern = /^[a-zA-Z\s]+$/;
+      const phonePattern = /^[0-9]+$/; 
+      return namePattern.test(this.order.name || '') && phonePattern.test(this.order.phoneNumber || '');
+    }
   },
   // Lifecycle hook.
   created(){
