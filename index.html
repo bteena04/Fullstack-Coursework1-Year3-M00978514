@@ -302,7 +302,7 @@
                               <span id="lesson_price">$ {{lesson.price}}</span>
                             </span>
                           </span>
-                          <span v-else id="outOfStockText">Out of stock</span>
+                          <span v-else id="outOfStockText" style="color: red;">Out of stock</span>
                         </div>
                       </div>
                     </div>
@@ -505,7 +505,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body">
-              Your order number is {{successOrderMsg}}
+              Your order number is {{orderStatusMsg}}
             </div>
           </div>
         </div>

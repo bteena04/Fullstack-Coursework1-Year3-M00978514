@@ -30,8 +30,7 @@ var app = new Vue({
     // Orders data.
     order: {
       name: '',
-      phoneNumber: '',
-      address: ''
+      phoneNumber: ''
     },
 
     // Order validation states and messages.
@@ -42,11 +41,8 @@ var app = new Vue({
       phoneErrorMessage: "Phone number must contain only digits."
     },
 
-    // Order success
-    successOrderMsg: '',
-
-    // Array to hold quantity of each lesson in the cart.
-    lessonQuantitiesinCart: [],
+    // Order status
+    orderStatusMsg: '',
 
     // Search
     noSearchedItemFound: false,
@@ -101,7 +97,7 @@ var app = new Vue({
       }
     },
 
-    // Method to check if the backend server is up.
+    // Method to check if the backend server and datais up.
     checkServerStatus(){
       return fetch(this.backendUrl)
       .then(response => {
@@ -109,7 +105,7 @@ var app = new Vue({
         return response.json();
       })
       .then(data => {
-        this.serverStatus = true;
+        this.serverStatus = data.dbConnected;
         this.fetchLessons(); // Fetch lessons after confirming server is up.
       })
       .catch(error => {
@@ -125,7 +121,6 @@ var app = new Vue({
         this.lessons =res; // store the fetched lessons in the lesson array.
       })
       .catch(error => {console.error("Error fetching lessons:", error)})
-      .finally(()=> console.log("Fetch attempt finished."));
     },
 
     // Fetch a single lesson by its ID.
@@ -133,11 +128,9 @@ var app = new Vue({
       return fetch(`${this.backendUrl}/collections/lessons/${id}`)
       .then(response => response.json())
       .then(res => {
-        console.log("Fetched lesson by ID:", res._id);
         return res;
       })
       .catch(error => {console.error("Error fetching lesson by ID:", error)})
-      .finally(()=> console.log("Fetch by ID attempt finished."))
     },
 
     // Method for calling api lesson search.
@@ -215,6 +208,7 @@ var app = new Vue({
     placeOrder(){
       const orderDate = new Date(); // Date type variable to hold the date the order has been placed.
 
+      // Validate
       if (!this.validateOrderDetails()){
         return;
       }
@@ -226,8 +220,6 @@ var app = new Vue({
         orderDate: orderDate.toDateString()
       }
 
-      console.log("Order payload:", orderDetails);
-
       return fetch(`${this.backendUrl}/checkout/place-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -238,23 +230,18 @@ var app = new Vue({
         return response.json();
       })
       .then(data => {
-        this.successOrderMsg = `Your order number is ${data.orderId}`
+        this.orderStatusMsg = `Your order number is ${data.orderId}`
 
         // Update stock after order placement.
         return this.updateStockAfterOrder()
-        .then(()=>{
-          console.log("Stock updated after order.");
-        });
       })
       .then(()=>{
         // Clear order details after successful order placement.
-        this.order.name = '';
-        this.order.phoneNumber = '';
-        this.order.address = '';
+        this.order = { name: '', phoneNumber: '' };
         this.cart = [];
       })
       .catch(error => {
-        alert('Error placing order, please try again later');
+        this.orderStatusMsg = "Error placing order, please try again later."  
         console.error("Error placing order:", error);
       });
     },
@@ -284,9 +271,6 @@ var app = new Vue({
       .then(response => {
         if(!response.ok) throw new Error("Network response was not ok");
         return response.json();
-      })
-      .then(data =>{
-        console.log(`Lesson ${id} updated:`, data);
       })
       .catch(error => {
         console.error(`Error updating lesson ${id}:`, error);
