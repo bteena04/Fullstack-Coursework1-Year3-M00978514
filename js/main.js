@@ -2,7 +2,7 @@
 var app = new Vue({
   el: '#app',
   data: {
-    backendUrl: 'http://localhost:3000', //https://fullstack-coursework1-year3-expressapp.onrender.com/
+    backendUrl: 'https://fullstack-coursework1-year3-expressapp.onrender.com/', //https://fullstack-coursework1-year3-expressapp.onrender.com/
     serverStatus: null, // null = unknown, true = up, false = down
     currentView: 'home',
     darkMode: true,
@@ -135,7 +135,7 @@ var app = new Vue({
 
     // Method for calling api lesson search.
     fetchLessonBySearchQuery(query){
-      return fetch(`${this.backendUrl}/lessons/search?search=${encodeURIComponent(query)}`)
+      return fetch(`${this.backendUrl}/lessons/search?keyword=${encodeURIComponent(query)}`)
       .then(response => response.json())
       .then(res => {
         return res;
