@@ -184,12 +184,7 @@
                   <h5 class="offcanvas-title" id="offcanvasScrollingLabel">
                     Filter
                   </h5>
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="offcanvas"
-                    aria-label="Close"
-                  ></button>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
 
                 <!-- Sidebar contents -->
@@ -235,7 +230,7 @@
                       <label for="sortOrderDesc">Descending</label>
                     </div>
                     <div>
-                      <button @click="clearSorting()">Clear sorting</button>
+                      <button @click="clearSorting()" class="mt-4" style="padding:5px; border-radius: 3px;">Clear sorting</button>
                     </div>
                   </div>
                 </div>
@@ -272,6 +267,7 @@
                     :src="`${backendUrl}/lesson-images/${lesson.img}`"
                     class="card-img-top"
                     alt="Lesson Image"
+                    style="width: 100%; height: auto; max-height: 250px; object-fit: cover;"
                   />
                   <div class="card-body text-center">
                     <div id="lesson_title">
@@ -353,7 +349,7 @@
             </div>
 
             <!-- Checkout details -->
-            <div class="checkout_detail_container container-fluid p-2">
+            <div class="checkout_detail_container container-fluid p-2" style="color: white !important;">
               <div class="checkout_boxes container">
                 <!-- Box for customer details -->
                 <div
@@ -423,8 +419,9 @@
                   <div class="checkout_row_number">2</div>
                   <!-- Box header name -->
                   <div class="col-auto checkout_header_name">Review items</div>
-                  <div id="review_noItemsInCart" v-if="itemsInCartLength===''">
-                    Add items to the cart and review for checkout.
+                  <div id="review_noItemsInCart" v-if="itemsInCartLength===''" class="text-warning">
+                    Add items to the cart and review for checkout. <br/>
+                    Click on the shopping cart button to browse lessons.
                   </div>
                 </div>
                 <!-- Box shipping details -->
@@ -456,9 +453,10 @@
                           <div class="mb-2">
                             <span>
                               Quantity: {{numberOfItemInCart(item.lesson._id)}}
-                              <span>
+                              <span >
                                 <button
                                   @click="removeLessonFromCart(item.lesson)"
+                                  style="margin-left: 10px;"
                                 >
                                   Remove
                                 </button>
