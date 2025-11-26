@@ -150,25 +150,26 @@ var app = new Vue({
     searchLessons(){
       if(!this.searchQuery || this.searchQuery.trim() === ""){
         // If search input is empty return all lessons.
-        this.fetchLessons();
         this.noSearchedItemFound =  false;
-      } else {
-        this.fetchLessonBySearchQuery(this.searchQuery)
-        .then(searchedLessonData=> {
-          this.lessons = searchedLessonData;
+        this.fetchLessons();
+        return; 
+      } 
 
-          // No match found.
-          if (this.lessons.length ===0){
-            this.noSearchedItemFound =  true;
-          } else {
-            this.noSearchedItemFound = false;
-          }
-        })
-        .catch(err => {
-          console.error("Error searching lessons:", err);
-          this.noSearchedItemFound = true;
-        });
-      }
+      this.fetchLessonBySearchQuery(this.searchQuery)
+      .then(searchedLessonData=> {
+        this.lessons = searchedLessonData;
+
+        // No match found.
+        if (this.lessons.length ===0){
+          this.noSearchedItemFound =  true;
+        } else {
+          this.noSearchedItemFound = false;
+        }
+      })
+      .catch(err => {
+        console.error("Error searching lessons:", err);
+        this.noSearchedItemFound = true;
+      }); 
     },
 
     // Cart: Load full lesson details for items in the cart using fetchLessonById.
@@ -230,7 +231,7 @@ var app = new Vue({
         return response.json();
       })
       .then(data => {
-        this.orderStatusMsg = `Your order number is ${data.orderId}`
+        this.orderStatusMsg = `Order successfully received. Your order number is ${data.orderId}`
 
         // Update stock after order placement.
         return this.updateStockAfterOrder()
@@ -249,7 +250,7 @@ var app = new Vue({
     submitOrder() {
       this.placeOrder()
         .then(() => {
-          // recall the fetch lessons
+          // recall the fetch lessons (refresh lessons)
           return this.checkServerStatus();   
         })
         .then(() => {
