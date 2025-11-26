@@ -8,6 +8,7 @@ This is the frontend repository of the XLearning website that allows buying afte
 4. Link to render.com route that returns all lessons (Express.js App): https://fullstack-coursework1-year3-expressapp.onrender.com/collections/lessons 
 
 ## Fullstack-Coursework1-Year3-M00978514/
+```text
 │
 ├─ css/
 ├─ js/
@@ -16,6 +17,7 @@ This is the frontend repository of the XLearning website that allows buying afte
 ├─ images/            # Images for logo
 ├─ index.html
 └─ README.md
+````
 
 ## This website is deployed on render.com
 To view the webpage, open https://bteena04.github.io/Fullstack-Coursework1-Year3-M00978514 in a browser.
