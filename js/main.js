@@ -2,7 +2,7 @@
 var app = new Vue({
   el: '#app',
   data: {
-    backendUrl: 'https://fullstack-coursework1-year3-expressapp.onrender.com', //https://fullstack-coursework1-year3-expressapp.onrender.com/
+    backendUrl: 'https://fullstack-coursework1-year3-expressapp.onrender.com', 
     serverStatus: null, // null = unknown, true = up, false = down
     currentView: 'home',
     darkMode: true,
@@ -217,7 +217,7 @@ var app = new Vue({
         name: this.order.name,
         phoneNumber: this.order.phoneNumber,
         lessons: this.cart.map(item =>item.lessonId),
-        orderDate: orderDate.toDateString()
+        orderDate: orderDate.toLocaleString()
       }
 
       return fetch(`${this.backendUrl}/checkout/place-order`, {
